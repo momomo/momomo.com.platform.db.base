@@ -21,7 +21,7 @@ public class $Migrations implements $MigrationsTable {
     
     public final boolean allow_deleting_of_already_applied_migrations;
     
-    private final $SqlJDBC sql;
+    private final $JdbcSql sql;
     
     /////////////////////////////////////////////////////////////////////
     public static final class Cons {
@@ -61,7 +61,7 @@ public class $Migrations implements $MigrationsTable {
     public $Migrations(Params params) {
         this.database   = params.database;
         
-        this.sql        = new $SqlJDBC();
+        this.sql        = new $JdbcSql();
         this.table      = new $Sql.Table(params.table);
         
         this.allow_deleting_of_already_applied_migrations = params.allow_deleting_of_already_applied_migrations;
@@ -224,7 +224,7 @@ public class $Migrations implements $MigrationsTable {
         
         database.withTransaction(connection -> {
             
-            $SqlJDBC sql = new $SqlJDBC();
+            $JdbcSql sql = new $JdbcSql();
             $Sql.Table table = sql.table(this.table);
             
                 /*

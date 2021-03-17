@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * @author Joseph S.
  */
-public class $SqlJDBC extends $Sql<$SqlJDBC> {
+public class $JdbcSql extends $Sql<$JdbcSql> {
     final ArrayList<Object> values = new ArrayList<>();
     
     @Override
@@ -29,7 +29,7 @@ public class $SqlJDBC extends $Sql<$SqlJDBC> {
                 String key = Val.LEFT + Regexes.group(matcher, 1) + Val.RIGHT;
                 
                 // Get the val
-                Object val = $SqlJDBC.super.VALS.get(key).val;
+                Object val = $JdbcSql.super.VALS.get(key).val;
                 
                 // Add it by index it was discovererd / ran into
                 values.add(val);
@@ -87,7 +87,7 @@ public class $SqlJDBC extends $Sql<$SqlJDBC> {
     }
     public <R, E extends Exception> R prepared($Connection connection, Lambda.R1E<R, $PreparedStatement, E> lambda) throws E {
         return connection.prepared(this.get(), statement -> {
-            $SqlJDBC.this.values(statement); return lambda.call(statement);
+            $JdbcSql.this.values(statement); return lambda.call(statement);
         });
     }
     
