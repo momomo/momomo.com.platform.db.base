@@ -43,7 +43,7 @@ public class $Migrations implements $MigrationsTable {
     /////////////////////////////////////////////////////////////////////
     
     private final $Database        database;
-    private final $Sql.Table        table;
+    private final $Sql.Table       table;
     private final $List<Migration> migrations;
     
     @Accessors(chain = true, fluent = true) @Setter public static final class Params {
