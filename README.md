@@ -3,7 +3,7 @@
 
 ## momomo.com.platform.db.base
 
-###### The absolute base of the database related modules. 
+###### The absolute base of the database related modules 
 
 #### Dependencies 
 * [`momomo.com.platform.Core`](https://github.com/momomo/momomo.com.platform.Core) 
