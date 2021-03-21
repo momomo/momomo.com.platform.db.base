@@ -1,5 +1,7 @@
 package momomo.com.db;
 
+import momomo.com.db.$Sql;
+
 /**
  * @author Joseph S.
  */

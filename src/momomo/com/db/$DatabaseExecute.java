@@ -13,6 +13,10 @@ import java.sql.SQLException;
  * @author Joseph S.
  */
 public interface $DatabaseExecute extends $DatabaseTransactional {
+    
+    /////////////////////////////////////////////////////////////////////
+    // sqll
+    /////////////////////////////////////////////////////////////////////
 
     default void sql(String sql) {
         connection((connection) -> {
@@ -47,6 +51,8 @@ public interface $DatabaseExecute extends $DatabaseTransactional {
         });
     }
 
+    /////////////////////////////////////////////////////////////////////
+    // query
     /////////////////////////////////////////////////////////////////////
 
     @Private default <R, E extends Exception> R query(Lambda.RE<ResultSet, SQLException> lambdaExecute, Lambda.R1E<R, $SqlResultSet, E> lambda) throws E {

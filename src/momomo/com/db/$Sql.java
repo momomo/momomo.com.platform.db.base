@@ -2,10 +2,11 @@ package momomo.com.db;
 
 import momomo.com.Is;
 import momomo.com.Lambda;
+import momomo.com.Time;
+import momomo.com.annotations.informative.Beta;
 import momomo.com.annotations.informative.Development;
 import momomo.com.sources.$CharSeq;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,18 +20,18 @@ import static momomo.com.Strings.NEWLINE;
 /**
  * @author Joseph S.
  */
-public class $Sql<THIS extends $Sql<THIS>> {
+@Beta("No promises can be made with regards to changes in accesss structure and what not") public class $Sql<THIS extends $Sql<THIS>> {
     protected final THIS THIS() {  return (THIS) this; }
 
-    private   static final AtomicLong NEXT       = new AtomicLong(0);
-    protected static final String     N          = NEWLINE;
-    public    static final String     TAB        = "\t";
-    public    static final String     SPACE      = " ";
-    public    static final String     COMMASPACE = ","  + SPACE;
-    public    static final String     SEMI       = ";";
-    public    static final String     SEMISPACE  = SEMI + SPACE;
-    public    static final String     AND        = " AND ";
-    public    static final String     EMPTY      = "";
+    private   static final AtomicLong NEXT              = new AtomicLong(0);
+    protected static final String     N                 = NEWLINE;
+    public    static final String     TAB               = "\t";
+    public    static final String     SPACE             = " ";
+    public    static final String     COMMASPACE        = ","  + SPACE;
+    public    static final String     SEMI              = ";";
+    public    static final String     SEMISPACE         = SEMI + SPACE;
+    public    static final String     AND               = " AND ";
+    public    static final String     EMPTY             = "";
 
     private final ArrayList<CharSequence> FREE          = new ArrayList<>();
     private final ArrayList<CharSequence> CREATE        = new ArrayList<>();
@@ -66,6 +67,7 @@ public class $Sql<THIS extends $Sql<THIS>> {
         JOIN.clear();
         GROUP.clear();
         ORDER.clear();
+        
         LIMIT = null;
         OFFSET = null;
         VALS.clear();
@@ -110,7 +112,9 @@ public class $Sql<THIS extends $Sql<THIS>> {
 
     /////////////////////////////////////////////////////////////////////
 
-    public final zelect select = new zelect(); public final class zelect { private zelect(){}
+    public final $Select$ select = new $Select$(); public final class $Select$ { private $Select$(){}
+        /** For chaining purposes **/
+        
         public THIS distinct(Distinct select) {
             $Sql.this.DISTINCT.add(select); return THIS();
         }
@@ -118,6 +122,9 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return distinct(new Distinct(columns));
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    
     public THIS select(Select select) {
         this.SELECT.add (select); return THIS();
     }
@@ -240,238 +247,12 @@ public class $Sql<THIS extends $Sql<THIS>> {
     public THIS order(CharSequence column, CharSequence asc) {
         return order(new Order(column, asc));
     }
-
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-
-    public static class Table implements $CharSeq {
-        private final CharSequence                  name;
-        private final String                        alias;
-
-        public Table(CharSequence name) {
-            this(name, NEXT.incrementAndGet());
-        }
-
-        public Table(CharSequence name, long count) {
-            this(name, name + "" + count);
-        }
-
-        public Table(CharSequence name, String alias) {
-            this.name  = name;
-            this.alias = alias;
-        }
-
-        private final HashMap<CharSequence, Column> columns = new HashMap<>();
-        public Column column(CharSequence column) {
-            return columns.compute(column.toString(), (k, v) -> {
-                if ( v == null ) {
-                    v = new Column(Table.this, column, false);
-                }
-
-                return v;
-            });
-        }
-
-        public String toFrom() {
-            return this.name + " AS " + this.alias;
-        }
-
-        public String toJoin() {
-            return toFrom();
-        }
-
-        /**
-         * You can only insert into a single table only normally but using AS
-         * might make sense in context of INSERT...FROM so we include AS since it does not throw an error
-         */
-        public String toInsert() {
-            return toFrom();
-        }
-
-        public String toUpdate() {
-            return toFrom();
-        }
-
-        public String toCreate() {
-            return toString();
-        }
-
-        public String alias() {
-            return alias;
-        }
-
-        public String aliased(String append) {
-            return alias() + "." + append;
-        }
-
-        public final Column[] all() {
-            return columns.values().toArray(new Column[]{});
-        }
-
-        @Override
-        public String toString() {
-            return name.toString();
-        }
-
-        /////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////
-
-        public static class Column implements $CharSeq {
-            protected final Table        outer;
-            protected final CharSequence name;
-
-            public static final String START = "__", END = START;
-
-            protected Column(Table outer, CharSequence name) {
-                this(outer, name, true);
-            }
-
-            public Column(Table outer, CharSequence name, boolean put) {
-                this.outer = outer;
-                this.name  = name;
-
-                if ( put ) {
-                    outer.columns.put(name.toString(), this);
-                }
-            }
-
-            public String eq(Val val) {
-                return toWhere()  + " = " + val;
-            }
-
-            public String gt(Val val) {
-                return toWhere()  + " > " + val;
-            }
-            public String ge(Val val) {
-                return toWhere()  + " >= " + val;
-            }
-            public String lt(Val val) {
-                return toWhere()  + " < " + val;
-            }
-            public String le(Val val) {
-                return toWhere()  + " <= " + val;
-            }
-
-            protected String aliased() {
-                return outer.alias + "." + toString();
-            }
-
-            protected String ass() {
-                return START + outer.alias + END + toString();
-            }
-
-            protected String assed() {
-                return aliased() + " AS " + ass();
-            }
-
-            public Table table() {
-                return outer;
-            }
-
-            public String toSelect() {
-                return assed();
-            }
-
-            public String toDistinct() {
-                return aliased();
-            }
-
-            public String toWhere() {
-                return aliased();
-            }
-
-            public String toGroup() {
-                return aliased();
-            }
-
-            public String toOrder() {
-                return aliased();
-            }
-
-            public String toJoin() {
-                return aliased();
-            }
-
-            public String toInsert() {
-                return toString();
-            }
-
-            public String toCreate() {
-                return toString();
-            }
-
-            public String toUpdate() {
-                return toString();
-            }
-
-            public String toRead() {
-                return ass();
-            }
-
-            @Override
-            public String toString() {
-                return name.toString();
-            }
-
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-
-    public static class Val implements $CharSeq {
-        public static final String  WHERED       = ":";
-        public static final String  LEFT         = "A";
-        public static final String  RIGHT        = "BtiZQe587edf14C";
-        public static final String  JDBC_REGEX   = "(?:" + WHERED + LEFT + ")" + "(.*?)" + "(?:" + RIGHT + ")";
-        public static final Pattern JDBC_PATTERN = Pattern.compile(JDBC_REGEX);
-
-        public final String key;
-        public final Object val;
-
-        private Val(Object val) {
-            this(NEXT.incrementAndGet(), val);
-        }
-
-        private Val(long key, Object val) {
-            this(LEFT + key + RIGHT, val);
-        }
-
-        private Val(String key, Object val) {
-            this.key = key;
-            this.val = val;
-        }
-
-        @Override
-        public String toString() {
-            return toWhere();
-        }
-
-        public String toWhere() {
-            return WHERED + key;
-        }
-
-        public String toInsert() {
-            return toWhere();
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-
+    
     public Table table(CharSequence table) {
         return TABLES.compute(table, (k, v) -> {
             if ( v == null ) { v = new Table(k); } return v;
         });
     }
-
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
 
     public String get() {
         final StringBuilder
@@ -648,7 +429,225 @@ public class $Sql<THIS extends $Sql<THIS>> {
 
         return QUERY.toString().trim();
     }
-
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    
+    public static class Table implements $CharSeq {
+        private final CharSequence                  name;
+        private final String                        alias;
+        
+        public Table(CharSequence name) {
+            this(name, NEXT.incrementAndGet());
+        }
+        
+        public Table(CharSequence name, long count) {
+            this(name, name + "" + count);
+        }
+        
+        public Table(CharSequence name, String alias) {
+            this.name  = name;
+            this.alias = alias;
+        }
+        
+        private final HashMap<CharSequence, Column> columns = new HashMap<>();
+        public Column column(CharSequence column) {
+            return columns.compute(column.toString(), (k, v) -> {
+                if ( v == null ) {
+                    v = new Column(Table.this, column, false);
+                }
+                
+                return v;
+            });
+        }
+        
+        public String toFrom() {
+            return this.name + " AS " + this.alias;
+        }
+        
+        public String toJoin() {
+            return toFrom();
+        }
+        
+        /**
+         * You can only insert into a single table only normally but using AS
+         * might make sense in context of INSERT...FROM so we include AS since it does not throw an error
+         */
+        public String toInsert() {
+            return toFrom();
+        }
+        
+        public String toUpdate() {
+            return toFrom();
+        }
+        
+        public String toCreate() {
+            return toString();
+        }
+        
+        public String alias() {
+            return alias;
+        }
+        
+        public String aliased(String append) {
+            return alias() + "." + append;
+        }
+        
+        public final Column[] all() {
+            return columns.values().toArray(new Column[]{});
+        }
+        
+        @Override
+        public String toString() {
+            return name.toString();
+        }
+        
+        /////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////
+        
+        public static class Column implements $CharSeq {
+            protected final Table        outer;
+            protected final CharSequence name;
+            
+            public static final String START = "__", END = START;
+            
+            protected Column(Table outer, CharSequence name) {
+                this(outer, name, true);
+            }
+            
+            public Column(Table outer, CharSequence name, boolean put) {
+                this.outer = outer;
+                this.name  = name;
+                
+                if ( put ) {
+                    outer.columns.put(name.toString(), this);
+                }
+            }
+            
+            public String eq(Val val) {
+                return toWhere()  + " = " + val;
+            }
+            
+            public String gt(Val val) {
+                return toWhere()  + " > " + val;
+            }
+            public String ge(Val val) {
+                return toWhere()  + " >= " + val;
+            }
+            public String lt(Val val) {
+                return toWhere()  + " < " + val;
+            }
+            public String le(Val val) {
+                return toWhere()  + " <= " + val;
+            }
+            
+            protected String aliased() {
+                return outer.alias + "." + toString();
+            }
+            
+            protected String ass() {
+                return START + outer.alias + END + toString();
+            }
+            
+            protected String assed() {
+                return aliased() + " AS " + ass();
+            }
+            
+            public Table table() {
+                return outer;
+            }
+            
+            public String toSelect() {
+                return assed();
+            }
+            
+            public String toDistinct() {
+                return aliased();
+            }
+            
+            public String toWhere() {
+                return aliased();
+            }
+            
+            public String toGroup() {
+                return aliased();
+            }
+            
+            public String toOrder() {
+                return aliased();
+            }
+            
+            public String toJoin() {
+                return aliased();
+            }
+            
+            public String toInsert() {
+                return toString();
+            }
+            
+            public String toCreate() {
+                return toString();
+            }
+            
+            public String toUpdate() {
+                return toString();
+            }
+            
+            public String toRead() {
+                return ass();
+            }
+            
+            @Override
+            public String toString() {
+                return name.toString();
+            }
+            
+        }
+    }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    
+    public static class Val implements $CharSeq {
+        public static final String  WHERED       = ":";
+        public static final String  LEFT         = "A";
+        public static final String  RIGHT        = "BtiZQe587edf14C";
+        public static final String  JDBC_REGEX   = "(?:" + WHERED + LEFT + ")" + "(.*?)" + "(?:" + RIGHT + ")";
+        public static final Pattern JDBC_PATTERN = Pattern.compile(JDBC_REGEX);
+        
+        public final String key;
+        public final Object val;
+        
+        private Val(Object val) {
+            this(NEXT.incrementAndGet(), val);
+        }
+        
+        private Val(long key, Object val) {
+            this(LEFT + key + RIGHT, val);
+        }
+        
+        private Val(String key, Object val) {
+            this.key = key;
+            this.val = val;
+        }
+        
+        @Override
+        public String toString() {
+            return toWhere();
+        }
+        
+        public String toWhere() {
+            return WHERED + key;
+        }
+        
+        public String toInsert() {
+            return toWhere();
+        }
+    }
+    
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////
@@ -673,6 +672,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return sb.toString();
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Select implements Params {
         private final String select;
@@ -699,6 +702,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return select;
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Distinct extends Select {
         public Distinct(CharSequence[] columns) {
@@ -710,7 +717,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return column.toDistinct();
         }
     }
-
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Join implements Params {
         private final String join;
@@ -747,6 +757,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return join;
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Update implements Params {
         private final $Sql<?> outer;
@@ -797,6 +811,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return table + " SET " + sb.toString();
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Create implements Params {
         private final $Sql<?> outer;
@@ -909,6 +927,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             }
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Where implements Params {
         private final $Sql<?> outer;
@@ -946,6 +968,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return seqs;
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Insert implements Params {
         private final $Sql<?> outer;
@@ -1031,6 +1057,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             }
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class From implements Params {
         private final String from;
@@ -1057,6 +1087,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return from;
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Group implements Params {
         private final String group;
@@ -1082,6 +1116,10 @@ public class $Sql<THIS extends $Sql<THIS>> {
             return group;
         }
     }
+    
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     public static class Order implements Params {
         private final String order;
@@ -1129,14 +1167,18 @@ public class $Sql<THIS extends $Sql<THIS>> {
         }
     }
     
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    
     @Development private static void exampleInsert($Sql<?> sql) {
         Table table = sql.table("myway");
 
         // Insert example 1. Multiple row insertions
         if ( false ) {
             sql.insert(table, "id", "begun", "completed")
-                    .values("zzzzzzzzz", timestamp(), timestamp())
-                    .values("xxxxxxxxx", timestamp(), timestamp())
+                    .values("zzzzzzzzz", Time.stamp(), Time.stamp())
+                    .values("xxxxxxxxx", Time.stamp(), Time.stamp())
             ;
         }
 
@@ -1145,8 +1187,8 @@ public class $Sql<THIS extends $Sql<THIS>> {
             sql.insert(table, $-> {
                 $
                     .columns("id", "begun", "completed")
-                    .values("aaaa", timestamp(), timestamp())
-                    .values("bbbb", timestamp(), timestamp())
+                    .values("aaaa", Time.stamp(), Time.stamp())
+                    .values("bbbb", Time.stamp(), Time.stamp())
                 ;
 
             });
@@ -1156,21 +1198,17 @@ public class $Sql<THIS extends $Sql<THIS>> {
         if ( false ) {
             sql.insert(table, $ -> {
                 $.value(table.column("id"), "eeessssssssssssssssssssssssssssssssssssssss");
-                $.value(table.column("begun"), timestamp());
-                $.value(table.column("completed"), timestamp());
+                $.value(table.column("begun"), Time.stamp());
+                $.value(table.column("completed"), Time.stamp());
             });
         }
     }
     
     @Development private static void exampleUpdate($Sql<?> sql, Table table) {
         sql.update(table, $-> {
-            $.value("completed", timestamp());
+            $.value("completed", Time.stamp());
 
         }).where("id", "=", sql.val("111"));
     }
     
-    
-    private static Timestamp timestamp() {
-        return new Timestamp(System.currentTimeMillis());
-    }
 }

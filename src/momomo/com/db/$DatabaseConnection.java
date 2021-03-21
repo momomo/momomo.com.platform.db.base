@@ -1,9 +1,9 @@
 package momomo.com.db;
 
-import momomo.com.annotations.informative.Protected;
 import momomo.com.Lambda;
-import momomo.com.exceptions.$DatabaseSQLException;
+import momomo.com.annotations.informative.Protected;
 import momomo.com.db.delegators.$Connection;
+import momomo.com.exceptions.$DatabaseSQLException;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -39,7 +39,7 @@ public interface $DatabaseConnection {
     }
 
     @Protected
-    default String url(String db) {
+    default String url(CharSequence db) {
         return protocol() + host() + ":" + port() + "/" + db;
     }
 
@@ -48,7 +48,7 @@ public interface $DatabaseConnection {
     default java.sql.Connection connection() throws SQLException {
         return connection(name());
     }
-    default java.sql.Connection connection(String db) throws SQLException {
+    default java.sql.Connection connection(CharSequence db) throws SQLException {
         return DriverManager.getConnection(url(db), username(), password());
     }
     default <E extends Exception> void connection(Lambda.V1E<$Connection, E> lambda) throws E {
@@ -57,10 +57,10 @@ public interface $DatabaseConnection {
     default <R, E extends Exception> R connection(Lambda.R1E<R, $Connection, E> lambda) throws E {
         return connection(name(), lambda);
     }
-    default <E extends Exception> void connection(String db, Lambda.V1E<$Connection, E> lambda) throws E {
+    default <E extends Exception> void connection(CharSequence db, Lambda.V1E<$Connection, E> lambda) throws E {
         connection(db, lambda.R1E());
     }
-    default <R, E extends Exception> R connection(String db, Lambda.R1E<R, $Connection, E> lambda) throws E {
+    default <R, E extends Exception> R connection(CharSequence db, Lambda.R1E<R, $Connection, E> lambda) throws E {
         try (java.sql.Connection connection = connection(db)) {
             return lambda.call( new $Connection(connection) );
         } catch (SQLException e) {

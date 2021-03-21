@@ -1,5 +1,6 @@
 package momomo.com.db;
 
+import momomo.com.Is;
 import momomo.com.Strings;
 import momomo.com.annotations.informative.Protected;
 
@@ -10,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
+ * Temporary, needs to be revised. Method names might change in the future. 
+ * 
  * @author Joseph S.
  */
 public interface $DatabaseSystem extends $DatabaseDrivers, $DatabaseConnection, $DatabaseTransactional, $DatabaseExecute {
@@ -38,10 +41,14 @@ public interface $DatabaseSystem extends $DatabaseDrivers, $DatabaseConnection, 
     default String sqlCreateTable(String table, String columns) {
         return "CREATE TABLE IF NOT EXISTS "+table+"\n" +
             "(\n" +
-            columns +
+                columns +
             ");\n" +
             "ALTER TABLE "+table + " OWNER TO " + username() + ";"
             ;
+    }
+    
+    default String sqlDropTables() {
+        return sqlDropTables(null);
     }
     
     @Protected
@@ -61,10 +68,10 @@ public interface $DatabaseSystem extends $DatabaseDrivers, $DatabaseConnection, 
     @Protected
     default String sqlGetColumnsConnected() {
         return """
-                        SELECT A.table_name as fromtable, A.column_name as fromcolumn, B.table_name as toTable, B.column_name toColumn
-                        FROM information_schema.key_column_usage A
-                        JOIN information_schema.constraint_column_usage B ON A.constraint_name = B.constraint_name
-                """;
+                SELECT A.table_name as fromtable, A.column_name as fromcolumn, B.table_name as toTable, B.column_name toColumn
+                FROM information_schema.key_column_usage A
+                JOIN information_schema.constraint_column_usage B ON A.constraint_name = B.constraint_name
+        """;
     }
     
     /////////////////////////////////////////////////////////////////////
@@ -138,6 +145,10 @@ public interface $DatabaseSystem extends $DatabaseDrivers, $DatabaseConnection, 
     
     /////////////////////////////////////////////////////////////////////
     
+    default void tablesDrop() {
+        this.tablesDrop(null);
+    }
+    
     /**
      * Drops all but excluding ( preferably a hashset of some sort)
      */
@@ -149,14 +160,31 @@ public interface $DatabaseSystem extends $DatabaseDrivers, $DatabaseConnection, 
         HashSet<String> drop = new HashSet<>(tables);
         
         if ( excluding != null ) {
-            for (CharSequence sequence : excluding) {
-                drop.remove(sequence.toString());
+            for (CharSequence table : excluding) {
+                drop.remove(table.toString());
             }
         }
         
         if ( !drop.isEmpty() ) {
             connection((connection) -> {
                 sql(connection, sqlDropTables(drop.toArray(new CharSequence[]{})));
+            });
+        }
+    }
+    
+    /////////////////////////////////////////////////////////////////////
+    
+    /**
+     * DROP SEQUENCE IF EXISTS polkadot_seq, stellar_seq;
+     */
+    default String sqlSequencesDrop(CharSequence ... sequences) {
+        return "DROP SEQUENCE IF EXISTS " + Strings.join(", ", sequences) + ";";  // We assume it looks the same in all databases, otherwise the implementor should override to fit theirs
+    }
+        
+    default void sequencesDrop(CharSequence ... sequences) {
+        if ( Is.Ok(sequences) ) {
+            connection(connection -> {
+                sql(connection, sqlSequencesDrop(sequences));
             });
         }
     }
