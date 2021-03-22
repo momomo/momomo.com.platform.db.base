@@ -1,6 +1,8 @@
 package momomo.com.db;
 
+import momomo.com.Globals;
 import momomo.com.Lambda;
+import momomo.com.annotations.informative.Overridable;
 import momomo.com.annotations.informative.Protected;
 import momomo.com.db.delegators.$Connection;
 import momomo.com.exceptions.$DatabaseSQLException;
@@ -12,34 +14,40 @@ import java.sql.SQLException;
  * @author Joseph S.
  */
 public interface $DatabaseConnection {
-
-    @Protected
-    String protocol();
-
-    @Protected
-    String port();
-
-    @Protected
-    String name();
-
-    @Protected
-    String username();
-
-    @Protected
-    String password();
-
-    @Protected
-    default String host() {
-        return "localhost";
+    
+    @Protected abstract String name();
+    
+    @Overridable
+    @Protected default String protocol() {
+        return Globals.Configurable.DATABASE_SERVER_PROTOCOL.get();
+    }
+    @Overridable
+    @Protected default String host() {
+        return Globals.Configurable.DATABASE_SERVER_HOST.get();
+    }
+    
+    @Overridable
+    @Protected default String port() {
+        return Globals.Configurable.DATABASE_SERVER_PORT.get().get();
+    }
+    
+    @Overridable
+    @Protected default String username() {
+        return Globals.Configurable.DATABASE_SERVER_PASSWORD.get();
+    }
+    
+    @Overridable
+    @Protected default String password() {
+        return Globals.Configurable.DATABASE_SERVER_PASSWORD.get();
     }
 
-    @Protected
-    default String url() {
+    @Overridable
+    @Protected default String url() {
         return url(name());
     }
-
-    @Protected
-    default String url(CharSequence db) {
+    
+    @Overridable
+    @Protected default String url(CharSequence db) {
         return protocol() + host() + ":" + port() + "/" + db;
     }
 
