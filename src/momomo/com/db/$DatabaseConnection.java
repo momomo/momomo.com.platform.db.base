@@ -1,11 +1,11 @@
 package momomo.com.db;
 
+import momomo.com.Ex;
 import momomo.com.Globals;
 import momomo.com.Lambda;
 import momomo.com.annotations.informative.Overridable;
 import momomo.com.annotations.informative.Protected;
 import momomo.com.db.delegators.$Connection;
-import momomo.com.exceptions.$DatabaseSQLException;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ public interface $DatabaseConnection {
     
     @Overridable
     @Protected default String port() {
-        return Globals.Configurable.DATABASE_SERVER_PORT.get().get();
+        return Globals.Configurable.DATABASE_SERVER_PORT.get();
     }
     
     @Overridable
@@ -53,11 +53,15 @@ public interface $DatabaseConnection {
 
     /////////////////////////////////////////////////////////////////////
 
-    default java.sql.Connection connection() throws SQLException {
+    default java.sql.Connection connection() {
         return connection(name());
     }
-    default java.sql.Connection connection(CharSequence db) throws SQLException {
-        return DriverManager.getConnection(url(db), username(), password());
+    default java.sql.Connection connection(CharSequence db) {
+        try {
+            return DriverManager.getConnection(url(db), username(), password());
+        } catch (SQLException e) {
+            throw Ex.runtime(e);
+        }
     }
     default <E extends Exception> void connection(Lambda.V1E<$Connection, E> lambda) throws E {
         connection(lambda.R1E());
@@ -72,7 +76,7 @@ public interface $DatabaseConnection {
         try (java.sql.Connection connection = connection(db)) {
             return lambda.call( new $Connection(connection) );
         } catch (SQLException e) {
-            throw new $DatabaseSQLException(e);
+            throw Ex.runtime(e);
         }
     }
 
