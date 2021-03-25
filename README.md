@@ -5,7 +5,7 @@
 
 ###### The absolute base of our database related modules 
 
-#### Dependencies 
+### Dependencies 
 * [`momomo.com.platform.Core`](https://github.com/momomo/momomo.com.platform.Core) 
 * [`momomo.com.platform.Lambda`](https://github.com/momomo/momomo.com.platform.Lambda)
 
