@@ -1,8 +1,6 @@
 <!---
 -->
 
-## momomo.com.platform.db.base
-
 ###### The absolute base of our database related modules 
 
 ##### Dependencies 
