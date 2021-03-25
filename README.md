@@ -32,7 +32,9 @@
     <id>maven-central</id>
     <url>http://repo1.maven.org/maven2</url>
 </repository>
-```                                                                                                 
+```
+
+---                                                                                                 
 
 ### Background
 
