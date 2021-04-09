@@ -48,10 +48,10 @@ Intuitive library that makes it easier for you to return multiple, fully defined
 Allows for nanosecond time resolution when asking for time from Java Runtime in contrast with **`System.currentTimeMillis()`**.
 
 * **[`momomo.com.platform.db.transactional.Hibernate`](https://github.com/momomo/momomo.com.platform.db.transactional.Hibernate)**  
-A library to execute database command in transactions without having to use annotations based on Hibernate libraries. No Spring!
+A library to execute database commands in transactions without  having to use annotations based on Hibernate libraries. No Spring!
 
 * **[`momomo.com.platform.db.transactional.Spring`](https://github.com/momomo/momomo.com.platform.db.transactional.Spring)**  
-A library to execute database command in transactions without having to use annotations based on Spring libraries.
+A library to execute database commands in transactions without  having to use annotations based on Spring libraries.
           
 ### Background
 
