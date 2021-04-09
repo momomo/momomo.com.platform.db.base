@@ -22,7 +22,7 @@
 <dependency>
   <groupId>com.momomo</groupId>
   <artifactId>momomo.com.platform.db.base</artifactId>
-  <version>2.1.9</version>
+  <version>5.0.1</version>
 </dependency>                                                      
 ```                         
 ##### Repository
